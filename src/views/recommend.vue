@@ -1,30 +1,58 @@
 <template>
   <div class="recommend">
-    <div class="slider-wrapper">
-      <div class="slider-content">
-        <Slider v-if="sliders.length" :sliders="sliders" />
+    <Scroll class="recommend-content">
+      <!-- scroll 仅会对第一个子元素进行滚动处理 需要包裹起来 -->
+      <div>
+        <div class="slider-wrapper">
+          <div class="slider-content">
+            <Slider v-if="sliders.length" :sliders="sliders" />
+          </div>
+        </div>
+
+        <div class="recommend-list">
+          <h1 class="list-title">热门歌单推荐</h1>
+          <ul>
+            <li v-for="item in albums" class="item" :key="item.id">
+              <div class="icon">
+                <img width="60" height="60" v-lazy="item.pic" />
+              </div>
+              <div class="text">
+                <h2 class="name">
+                  {{ item.username }}
+                </h2>
+                <p class="title">
+                  {{ item.title }}
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
+    </Scroll>
   </div>
 </template>
 
 <script>
 import { getRecommend } from '@/service/recommend'
 import Slider from '@/components/base/slider/slider'
+import Scroll from '@/components/base/scroll/scroll'
 
 export default {
   name: 'Home',
   components: {
-    Slider
+    Slider,
+    Scroll
   },
   data() {
     return {
-      sliders: []
+      sliders: [],
+      albums: []
     }
   },
   async created() {
     const res = await getRecommend()
     this.sliders = res.sliders
+    this.albums = res.albums
   }
 }
 </script>
