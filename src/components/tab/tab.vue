@@ -10,7 +10,7 @@
 
 <script>
 export default {
-  name: 'tab',
+  name: 'Tab',
   data() {
     return {
       tabs: [

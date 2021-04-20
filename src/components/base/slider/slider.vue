@@ -24,7 +24,7 @@ import { defineComponent, ref } from 'vue'
 import useSlider from './useSlider'
 
 export default defineComponent({
-  name: 'slider',
+  name: 'Slider',
   props: {
     sliders: {
       type: Array,
@@ -49,6 +49,14 @@ export default defineComponent({
 .slider {
   min-height: 1px;
   font-size: 0;
+  /*
+    禁止浏览器的默认水平拖拽行为 仅启用单指垂直平移手势
+      参考文档
+        https://coding.imooc.com/learn/questiondetail/8QVD563J1gKXN4Ez.html
+        https://blog.csdn.net/chjj0904/article/details/78367575
+        https://blog.csdn.net/lumot/article/details/101217355?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_title-0&spm=1001.2101.3001.4242
+        https://cloud.tencent.com/developer/section/1072256
+  */
   touch-action: pan-y;
   position: relative;
   .slider-group {

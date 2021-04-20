@@ -28,8 +28,39 @@ module.exports = {
     'comma-dangle': ['error', 'never'],
     'prettier/prettier': [
       'warn',
-      {}, // prettier规则 同.prettierrc.json中的配置
+      // prettier规则 同.prettierrc.json中的配置
       {
+        printWidth: 100,
+        tabWidth: 2,
+        useTabs: false,
+        semi: false,
+        vueIndentScriptAndStyle: false,
+        singleQuote: true,
+        quoteProps: 'as-needed',
+        bracketSpacing: true,
+        trailingComma: 'none',
+        jsxBracketSameLine: false,
+        jsxSingleQuote: false,
+        arrowParens: 'avoid',
+        insertPragma: false,
+        requirePragma: false,
+        proseWrap: 'never',
+        htmlWhitespaceSensitivity: 'strict',
+        endOfLine: 'lf',
+        rangeStart: 0,
+        eslintIntegration: false,
+        overrides: [
+          {
+            files: '*.md',
+            options: {
+              tabWidth: 2
+            }
+          }
+        ]
+      },
+      {
+        // 发现一个问题，即使通过这配置了允许使用外部prettier配置文件作为配置
+        // 有的配置参数在.prettierrc.json中配置后 不会生效 还得在当前配置文件中做声明
         usePrettierrc: true
       }
     ],
@@ -53,6 +84,8 @@ module.exports = {
         maxBOF: 1
       }
     ],
-    'vue/no-unused-vars': 'warn'
+    'vue/no-unused-vars': 'warn',
+    'vue/no-unused-components': 'warn',
+    'no-unused-vars': 'warn'
   }
 }

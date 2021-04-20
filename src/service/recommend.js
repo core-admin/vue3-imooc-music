@@ -1,5 +1,3 @@
 import { get } from '@/service/base'
 
-export const getRecommend = () => {
-  return get('/api/getRecommend')
-}
+export const getRecommend = () => get('/api/getRecommend')

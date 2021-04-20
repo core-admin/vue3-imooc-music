@@ -1,14 +1,51 @@
-<template> singer </template>
+<template>
+  <div class="singer" v-loading="!singers.length">
+    <index-list :data="singers" @select="selectSinger" />
+
+    <router-view :singer="selectedSinger" />
+  </div>
+</template>
 
 <script>
 import { defineComponent } from 'vue'
+import { getSingerList } from '@/service/singer'
+import IndexList from '@/components/base/index-list/IndexList'
+import storage from 'good-storage'
+import { SINGER_KEY } from '@/assets/js/constant'
 
 export default defineComponent({
   name: 'singer',
-  setup() {
-    return {}
+  components: {
+    IndexList
+  },
+  data() {
+    return {
+      singers: [],
+      selectedSinger: null
+    }
+  },
+  async created() {
+    const { singers } = await getSingerList()
+    this.singers = singers
+  },
+  methods: {
+    selectSinger(singer) {
+      this.selectedSinger = singer
+      this.cacheSinger(singer)
+      this.$router.push(`/singer/${singer.mid}`)
+    },
+    cacheSinger(singer) {
+      storage.session.set(SINGER_KEY, singer)
+    }
   }
 })
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.singer {
+  position: fixed;
+  width: 100%;
+  top: 88px;
+  bottom: 0;
+}
+</style>

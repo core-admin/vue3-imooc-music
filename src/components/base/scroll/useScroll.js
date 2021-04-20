@@ -4,18 +4,26 @@ import BScroll from '@better-scroll/core'
 import ObserveDOM from '@better-scroll/observe-dom'
 BScroll.use(ObserveDOM)
 
-export default function useScroll(wrapperRef, options = {}) {
+export default function useScroll(wrapperRef, options, emit) {
   const scroll = ref(null)
 
   onMounted(() => {
-    scroll.value = new BScroll(wrapperRef.value, {
+    const scrollVal = (scroll.value = new BScroll(wrapperRef.value, {
       // 实现自动监听刷新
       observeDOM: true,
       ...options
-    })
+    }))
+
+    if (options.probeType && options.probeType > 0) {
+      scrollVal.on('scroll', position => {
+        emit('scroll', position)
+      })
+    }
   })
 
   onUnmounted(() => {
     scroll.value.destroy()
   })
+
+  return scroll
 }
