@@ -61,7 +61,7 @@ module.exports = {
       {
         // 发现一个问题，即使通过这配置了允许使用外部prettier配置文件作为配置
         // 有的配置参数在.prettierrc.json中配置后 不会生效 还得在当前配置文件中做声明
-        usePrettierrc: true
+        usePrettierrc: false
       }
     ],
     // @fixable 代码块如果在一行内，那么大括号内的首尾必须有空格，比如 function () { alert('Hello') }
@@ -72,7 +72,7 @@ module.exports = {
       'always',
       {
         arraysInObjects: true,
-        objectsInObjects: false
+        objectsInObjects: true
       }
     ],
     // @fixable 禁止出现超过三行的连续空行

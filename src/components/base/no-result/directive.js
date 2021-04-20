@@ -1,4 +1,4 @@
-import Loading from './Loading'
+import Loading from './NoResult'
 import createLoadingLikeDirective from '@/assets/js/createLoadingLikeDirective'
 
 const loadingDirective = createLoadingLikeDirective(Loading)
