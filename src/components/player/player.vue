@@ -17,13 +17,13 @@
           <div class="icon i-left">
             <i class="icon-sequence"></i>
           </div>
-          <div class="icon i-left">
+          <div class="icon i-left" :class="disabledCls">
             <i class="icon-prev" @click="prev"></i>
           </div>
-          <div class="icon i-center">
+          <div class="icon i-center" :class="disabledCls">
             <i :class="playIcon" @click="togglePlay"></i>
           </div>
-          <div class="icon i-right">
+          <div class="icon i-right" :class="disabledCls">
             <i class="icon-next" @click="next"></i>
           </div>
           <div class="icon i-right">
@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <audio ref="audioRef" @pause="pause"></audio>
+    <audio ref="audioRef" @pause="pause" @canplay="ready" @error="error"></audio>
   </div>
 </template>
 
@@ -46,6 +46,8 @@ export default defineComponent({
   setup() {
     // state
     const audioRef = ref(null)
+    // 判断歌曲是否缓冲成功 可以播放
+    const songReady = ref(false)
 
     // vuex
     const store = useStore()
@@ -64,34 +66,52 @@ export default defineComponent({
 
     // computed
     const playIcon = computed(() => (playing.value ? 'icon-pause' : 'icon-play'))
+    const disabledCls = computed(() => (songReady.value ? '' : 'disable'))
 
     // watch
     watch(currentSong, newSong => {
-      if (!newSong.id || !newSong.url) {
-        return
-      }
+      if (!newSong.id || !newSong.url) return
+      songReady.value = false
+
       const audioEl = audioRef.value
       audioEl.src = newSong.url
       audioEl.play()
-      store.commit('setPlayingState', true)
     })
 
     watch(playing, newPlaying => {
+      console.log('playing change', newPlaying)
+      if (!songReady.value) return
+
       const audioEl = audioRef.value
       newPlaying ? audioEl.play() : audioEl.pause()
     })
 
-    // methods
-    const goBack = () => store.commit('setFullScreen', false)
-
-    // 切换播放状态
-    const togglePlay = () => store.commit('setPlayingState', !playing.value)
+    // audio methods
 
     /* 
       监听原生audio控件暂停方法
       （可能存在设备待机 audio暂停播放导致写的程序没被监听到造成vuex数据错乱
     */
     const pause = () => store.commit('setPlayingState', false)
+
+    // audio中存在了歌曲的缓冲数据 可以播放
+    const ready = () => {
+      if (songReady.value) return
+      songReady.value = true
+    }
+
+    // 防止歌曲出现错误的情况下 造成所有歌曲都不能切换的问题
+    const error = () => (songReady.value = true)
+
+    // methods
+
+    const goBack = () => store.commit('setFullScreen', false)
+
+    // 切换播放状态
+    const togglePlay = () => {
+      if (!songReady.value) return
+      store.commit('setPlayingState', !playing.value)
+    }
 
     // 循环播放当前歌曲
     const loop = () => {
@@ -104,7 +124,7 @@ export default defineComponent({
     const prev = () => {
       const list = playlist.value
 
-      if (list.length === 0) return
+      if (list.length === 0 || !songReady.value) return
 
       // 列表只有一首歌曲 执行循环播放
       if (list.length === 1) return loop()
@@ -121,7 +141,7 @@ export default defineComponent({
 
     const next = () => {
       const list = playlist.value
-      if (list.length === 0) return
+      if (list.length === 0 || !songReady.value) return
 
       if (list.length === 1) return loop()
 
@@ -145,11 +165,15 @@ export default defineComponent({
 
       // computed
       playIcon,
+      disabledCls,
 
       // method
+      pause,
+      ready,
+      error,
+
       goBack,
       togglePlay,
-      pause,
       prev,
       next
     }
