@@ -6,6 +6,12 @@
     <h1 class="title">{{ title }}</h1>
     <div class="bg-image" ref="bgImage" :style="bgImageStyle">
       <div class="filter" :style="filterStyle"></div>
+      <div class="play-btn-wrapper" :style="playBtnStyle">
+        <div v-show="songs.length > 0" class="play-btn" @click="random">
+          <i class="icon-play"></i>
+          <span class="text">随机播放全部</span>
+        </div>
+      </div>
     </div>
     <scroll
       class="list"
@@ -17,7 +23,7 @@
       @scroll="onScroll"
     >
       <div class="song-list-wrapper">
-        <song-list :songs="songs" />
+        <song-list :songs="songs" @select="selectItem" />
       </div>
     </scroll>
   </div>
@@ -26,6 +32,7 @@
 <script>
 import SongList from '@/components/base/song-list/SongList'
 import Scroll from '@/components/base/scroll/scroll'
+import { mapActions } from 'vuex'
 
 const RESERVED_HEIGHT = 40
 
@@ -60,6 +67,15 @@ export default {
   computed: {
     noResult() {
       return !this.loading && !this.songs.length
+    },
+    playBtnStyle() {
+      let display = ''
+      if (this.scrollY >= this.maxTranslateY) {
+        display = 'none'
+      }
+      return {
+        display
+      }
     },
     bgImageStyle() {
       const scrollY = this.scrollY
@@ -110,12 +126,22 @@ export default {
     this.maxTranslateY = this.imageHeight - RESERVED_HEIGHT
   },
   methods: {
+    ...mapActions(['selectPlay', 'randomPlay']),
     goBack() {
       this.$router.back()
     },
     // scroll事件返回的y轴值是负值与dom onscroll相反
     onScroll(pos) {
       this.scrollY = -pos.y
+    },
+    selectItem({ song, index }) {
+      this.selectPlay({
+        list: this.songs,
+        index
+      })
+    },
+    random() {
+      this.randomPlay(this.songs)
     }
   }
 }
