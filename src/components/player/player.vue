@@ -15,7 +15,7 @@
       <div class="bottom">
         <div class="operators">
           <div class="icon i-left">
-            <i class="icon-sequence"></i>
+            <i :class="modeIcon" @click="changeMode"></i>
           </div>
           <div class="icon i-left" :class="disabledCls">
             <i class="icon-prev" @click="prev"></i>
@@ -40,16 +40,20 @@
 <script>
 import { defineComponent, computed, watch, ref } from 'vue'
 import { useStore } from 'vuex'
+import useMode from './useMode'
+import { PLAY_MODE } from '@/assets/js/constant'
 
 export default defineComponent({
   name: 'player',
+  props: ['test'],
   setup() {
-    // state
+    // ------ state ------
     const audioRef = ref(null)
     // 判断歌曲是否缓冲成功 可以播放
     const songReady = ref(false)
 
-    // vuex
+    // ------ vuex ------
+
     const store = useStore()
     // 播放器是否展开
     const fullScreen = computed(() => store.state.fullScreen)
@@ -62,31 +66,33 @@ export default defineComponent({
     // 播放列表
     const playlist = computed(() => store.state.playlist)
 
-    // hooks
+    // ------ hooks ------
+
+    const { modeIcon, playMode, changeMode } = useMode()
 
     // computed
     const playIcon = computed(() => (playing.value ? 'icon-pause' : 'icon-play'))
     const disabledCls = computed(() => (songReady.value ? '' : 'disable'))
 
-    // watch
+    // ------ watch ------
+
     watch(currentSong, newSong => {
       if (!newSong.id || !newSong.url) return
-      songReady.value = false
 
+      songReady.value = false
       const audioEl = audioRef.value
       audioEl.src = newSong.url
       audioEl.play()
     })
 
     watch(playing, newPlaying => {
-      console.log('playing change', newPlaying)
       if (!songReady.value) return
 
       const audioEl = audioRef.value
       newPlaying ? audioEl.play() : audioEl.pause()
     })
 
-    // audio methods
+    // ------ audio methods ------
 
     /* 
       监听原生audio控件暂停方法
@@ -103,7 +109,7 @@ export default defineComponent({
     // 防止歌曲出现错误的情况下 造成所有歌曲都不能切换的问题
     const error = () => (songReady.value = true)
 
-    // methods
+    // ------ methods ------
 
     const goBack = () => store.commit('setFullScreen', false)
 
@@ -130,10 +136,17 @@ export default defineComponent({
       if (list.length === 1) return loop()
 
       let index = currentIndex.value - 1
+
       if (index < 0) {
         index = list.length - 1
       }
+
+      if (playMode.value === PLAY_MODE.random) {
+        store.dispatch('randomSelectionSong')
+      }
+
       store.commit('setCurrentIndex', index)
+
       if (!playing.value) {
         store.commit('setPlayingState', true)
       }
@@ -146,9 +159,15 @@ export default defineComponent({
       if (list.length === 1) return loop()
 
       let index = currentIndex.value + 1
+
       if (index === list.length) {
         index = 0
       }
+
+      if (playMode.value === PLAY_MODE.random) {
+        store.dispatch('randomSelectionSong')
+      }
+
       store.commit('setCurrentIndex', index)
       if (!playing.value) {
         store.commit('setPlayingState', true)
@@ -156,18 +175,22 @@ export default defineComponent({
     }
 
     return {
-      // state
+      // --- state ---
       audioRef,
 
-      // vuex
+      // --- vuex ---
       fullScreen,
       currentSong,
 
-      // computed
+      // --- hook state ---
+      modeIcon,
+      changeMode,
+
+      // --- computed ---
       playIcon,
       disabledCls,
 
-      // method
+      // --- method ---
       pause,
       ready,
       error,
