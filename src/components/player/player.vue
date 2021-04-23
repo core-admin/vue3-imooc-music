@@ -16,7 +16,11 @@
         <div class="progress-wrapper">
           <span class="time time-l">{{ formatTime(currentTime) }}</span>
           <div class="progress-bar-wrapper">
-            <ProgressBar :progress="progress" />
+            <ProgressBar
+              :progress="progress"
+              @progress-changing="onProgressChanging"
+              @progress-changed="onProgressChanged"
+            />
           </div>
           <span class="time time-r">{{ formatTime(currentSong.duration) }}</span>
         </div>
@@ -47,6 +51,7 @@
       @canplay="ready"
       @error="error"
       @timeupdate="updateTime"
+      @ended="onEnded"
     ></audio>
   </div>
 </template>
@@ -73,6 +78,8 @@ export default defineComponent({
     const songReady = ref(false)
     // 当前时长
     const currentTime = ref(0)
+    // 是否在拖拽进度条
+    let progressChanging = false
 
     // ------ vuex ------
 
@@ -137,7 +144,20 @@ export default defineComponent({
     // 防止歌曲出现错误的情况下 造成所有歌曲都不能切换的问题
     const error = () => (songReady.value = true)
 
-    const updateTime = e => (currentTime.value = e.target.currentTime)
+    // 歌曲进度发生改变
+    const updateTime = e => {
+      // 防止拖拽进度条时 由于歌曲进度发生改变而影响进度条位置
+      if (!progressChanging) {
+        currentTime.value = e.target.currentTime
+      }
+    }
+
+    // 歌曲播放完毕
+    const onEnded = () => {
+      currentTime.value = 0
+      if (playMode.value === PLAY_MODE.loop) return loop()
+      next()
+    }
 
     // ------ methods ------
 
@@ -171,6 +191,7 @@ export default defineComponent({
         index = list.length - 1
       }
 
+      // 当为随机播放时 切换歌曲也应该再打乱一次歌曲
       if (playMode.value === PLAY_MODE.random) {
         store.dispatch('randomSelectionSong')
       }
@@ -204,6 +225,22 @@ export default defineComponent({
       }
     }
 
+    // progress cb
+    const onProgressChanging = progress => {
+      progressChanging = true
+      currentTime.value = currentSong.value.duration * progress
+    }
+
+    // 拖动完毕才去更新真实的audio的进度
+    const onProgressChanged = progress => {
+      progressChanging = false
+      audioRef.value.currentTime = currentTime.value = currentSong.value.duration * progress
+      // 暂停状态下 拖动完毕 播放
+      if (!playing.value) {
+        store.commit('setPlayingState', true)
+      }
+    }
+
     return {
       // --- state ---
       audioRef,
@@ -225,16 +262,21 @@ export default defineComponent({
       progress,
 
       // --- method ---
+      // audio事件相关
       pause,
       ready,
       error,
       updateTime,
+      onEnded,
 
       goBack,
       togglePlay,
       prev,
       next,
-      formatTime
+      // progress相关
+      formatTime,
+      onProgressChanging,
+      onProgressChanged
     }
   }
 })
@@ -409,9 +451,9 @@ export default defineComponent({
         .time {
           color: $color-text;
           font-size: $font-size-small;
-          flex: 0 0 40px;
+          flex: 0 0 46px;
           line-height: 30px;
-          width: 40px;
+          flex-shrink: 0;
           &.time-l {
             text-align: left;
           }

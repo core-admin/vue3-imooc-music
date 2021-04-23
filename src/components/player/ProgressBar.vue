@@ -1,11 +1,17 @@
 <template>
-  <div class="progress-bar" ref="progressBarRef">
+  <div class="progress-bar" ref="progressBarRef" @click="onClick">
     <!-- 底色条 背景 -->
     <div class="bar-inner">
       <!-- 实时显示的进度条 -->
-      <div class="progress" ref="progress" :style="progressStyle"></div>
+      <div class="progress" ref="progressRef" :style="progressStyle"></div>
       <!-- 进度点 -->
-      <div class="progress-btn-wrapper" :style="btnStyle">
+      <div
+        class="progress-btn-wrapper"
+        :style="btnStyle"
+        @touchstart.prevent="onTouchStart"
+        @touchmove.prevent="onTouchMove"
+        @touchend.prevent="onTouchEnd"
+      >
         <div class="progress-btn"></div>
       </div>
     </div>
@@ -15,7 +21,7 @@
 <script>
 import { defineComponent, ref, watch, computed } from 'vue'
 
-const progressBtnWidth = 16
+// const progressBtnWidth = 8
 
 export default defineComponent({
   name: 'ProgressBar',
@@ -25,31 +31,79 @@ export default defineComponent({
       default: 0
     }
   },
-  setup(props) {
+  // 手指拖拽中 与 手指拖拽完毕抬起
+  emits: ['progress-changing', 'progress-changed'],
+  setup(props, { emit }) {
     const offset = ref(0)
     const progressBarRef = ref(null)
+    const progressRef = ref(null)
 
     const progressStyle = computed(() => {
       return `width: ${offset.value}px`
     })
 
     const btnStyle = computed(() => {
+      // const barWidth = getBarWidth()
+      // const btnTrackWidth = getBarWidth(progressBtnWidth)
+      // const x = btnTrackWidth * (offset.value / barWidth)
+      // return `transform: translate3d(${x}px, 0, 0)`
+
       return `transform: translate3d(${offset.value}px, 0, 0)`
     })
 
     watch(
       () => props.progress,
       newProgress => {
-        const barWidth = progressBarRef.value.clientWidth - progressBtnWidth
+        const barWidth = getBarWidth()
         offset.value = barWidth * newProgress
       }
     )
 
+    const getBarWidth = (progressBtnWidth = 0) =>
+      progressBarRef.value?.clientWidth - progressBtnWidth || 0
+
+    let touch = {}
+    const onTouchStart = e => {
+      touch.touchStart = e.touches[0].pageX
+      touch.startWidth = progressRef.value.clientWidth
+    }
+
+    const onTouchMove = e => {
+      // 偏移量
+      const delta = e.touches[0].pageX - touch.touchStart
+      const tempWidth = touch.startWidth + delta
+      const barWidth = getBarWidth()
+      const ratio = tempWidth / barWidth
+      const progress = Math.max(0, Math.min(1, ratio))
+      offset.value = barWidth * progress
+      emit('progress-changing', progress)
+    }
+
+    const onTouchEnd = () => {
+      const barWidth = getBarWidth()
+      const progress = offset.value / barWidth
+      touch = {}
+      emit('progress-changed', progress)
+    }
+
+    const onClick = e => {
+      const rect = progressBarRef.value.getBoundingClientRect().left
+      const offsetWidth = e.pageX - rect
+      const barWidth = getBarWidth()
+      const progress = offsetWidth / barWidth
+      emit('progress-changed', progress)
+    }
+
     return {
       offset,
       progressBarRef,
+      progressRef,
       progressStyle,
-      btnStyle
+      btnStyle,
+      onTouchStart,
+      onTouchMove,
+      onTouchEnd,
+      onClick
     }
   }
 })
@@ -77,7 +131,7 @@ export default defineComponent({
       .progress-btn {
         position: relative;
         top: 7px;
-        left: 7px;
+        /* left: 7px; */
         box-sizing: border-box;
         width: 16px;
         height: 16px;
