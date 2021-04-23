@@ -13,6 +13,14 @@
       </div>
 
       <div class="bottom">
+        <div class="progress-wrapper">
+          <span class="time time-l">{{ formatTime(currentTime) }}</span>
+          <div class="progress-bar-wrapper">
+            <ProgressBar :progress="progress" />
+          </div>
+          <span class="time time-r">{{ formatTime(currentSong.duration) }}</span>
+        </div>
+
         <div class="operators">
           <div class="icon i-left">
             <i :class="modeIcon" @click="changeMode"></i>
@@ -27,30 +35,44 @@
             <i class="icon-next" @click="next"></i>
           </div>
           <div class="icon i-right">
-            <i class="icon-favorite"></i>
+            <i :class="getFavoriteIcon(currentSong)" @click="toggleFavorite(currentSong)"></i>
           </div>
         </div>
       </div>
     </div>
 
-    <audio ref="audioRef" @pause="pause" @canplay="ready" @error="error"></audio>
+    <audio
+      ref="audioRef"
+      @pause="pause"
+      @canplay="ready"
+      @error="error"
+      @timeupdate="updateTime"
+    ></audio>
   </div>
 </template>
 
 <script>
 import { defineComponent, computed, watch, ref } from 'vue'
 import { useStore } from 'vuex'
-import useMode from './useMode'
 import { PLAY_MODE } from '@/assets/js/constant'
+import useMode from './useMode'
+import useFavorite from './useFavorite'
+import ProgressBar from './ProgressBar'
+import { formatTime } from '@/assets/js/util'
 
 export default defineComponent({
   name: 'player',
   props: ['test'],
+  components: {
+    ProgressBar
+  },
   setup() {
     // ------ state ------
     const audioRef = ref(null)
     // 判断歌曲是否缓冲成功 可以播放
     const songReady = ref(false)
+    // 当前时长
+    const currentTime = ref(0)
 
     // ------ vuex ------
 
@@ -68,17 +90,23 @@ export default defineComponent({
 
     // ------ hooks ------
 
+    // 处理歌曲播放模式修改
     const { modeIcon, playMode, changeMode } = useMode()
+    // 处理歌曲收藏与删除
+    const { getFavoriteIcon, toggleFavorite } = useFavorite()
 
     // computed
     const playIcon = computed(() => (playing.value ? 'icon-pause' : 'icon-play'))
+    // 禁用点击
     const disabledCls = computed(() => (songReady.value ? '' : 'disable'))
+    // 进度 0 - 1
+    const progress = computed(() => currentTime.value / currentSong.value.duration)
 
     // ------ watch ------
 
     watch(currentSong, newSong => {
       if (!newSong.id || !newSong.url) return
-
+      currentTime.value = 0
       songReady.value = false
       const audioEl = audioRef.value
       audioEl.src = newSong.url
@@ -108,6 +136,8 @@ export default defineComponent({
 
     // 防止歌曲出现错误的情况下 造成所有歌曲都不能切换的问题
     const error = () => (songReady.value = true)
+
+    const updateTime = e => (currentTime.value = e.target.currentTime)
 
     // ------ methods ------
 
@@ -177,6 +207,7 @@ export default defineComponent({
     return {
       // --- state ---
       audioRef,
+      currentTime,
 
       // --- vuex ---
       fullScreen,
@@ -185,20 +216,25 @@ export default defineComponent({
       // --- hook state ---
       modeIcon,
       changeMode,
+      getFavoriteIcon,
+      toggleFavorite,
 
       // --- computed ---
       playIcon,
       disabledCls,
+      progress,
 
       // --- method ---
       pause,
       ready,
       error,
+      updateTime,
 
       goBack,
       togglePlay,
       prev,
-      next
+      next,
+      formatTime
     }
   }
 })
@@ -226,6 +262,7 @@ export default defineComponent({
       img {
         width: 100%;
         height: 100%;
+        object-fit: cover;
       }
     }
     .top {
