@@ -1,15 +1,33 @@
 <template>
   <div class="player">
     <div class="normal-player" v-show="fullScreen">
+      <!-- 模糊背景层 -->
       <div class="background">
         <img :src="currentSong.pic" />
       </div>
+      <!-- 顶部导航 -->
       <div class="top">
         <div class="back" @click="goBack">
           <i class="icon-back"></i>
         </div>
         <h1 class="title">{{ currentSong.name }}</h1>
         <h2 class="subtitle">{{ currentSong.singer }}</h2>
+      </div>
+
+      <!-- 中间居于 包括唱片和歌词两个部分 -->
+      <div class="middle">
+        <div class="middle-l">
+          <!-- 唱片图片 -->
+          <div class="cd-wrapper" ref="cdWrapperRef">
+            <div class="cd" ref="cdRef">
+              <img ref="cdImageRef" class="image" :class="cdCls" :src="currentSong.pic" />
+            </div>
+          </div>
+          <!-- 缩略歌词 -->
+          <div class="playing-lyric-wrapper">
+            <div class="playing-lyric"></div>
+          </div>
+        </div>
       </div>
 
       <div class="bottom">
@@ -60,10 +78,11 @@
 import { defineComponent, computed, watch, ref } from 'vue'
 import { useStore } from 'vuex'
 import { PLAY_MODE } from '@/assets/js/constant'
+import { formatTime } from '@/assets/js/util'
+import ProgressBar from './ProgressBar'
 import useMode from './useMode'
 import useFavorite from './useFavorite'
-import ProgressBar from './ProgressBar'
-import { formatTime } from '@/assets/js/util'
+import useCd from './useCd'
 
 export default defineComponent({
   name: 'player',
@@ -108,6 +127,8 @@ export default defineComponent({
     const disabledCls = computed(() => (songReady.value ? '' : 'disable'))
     // 进度 0 - 1
     const progress = computed(() => currentTime.value / currentSong.value.duration)
+    // 唱片
+    const { cdCls, cdRef, cdImageRef } = useCd()
 
     // ------ watch ------
 
@@ -255,6 +276,9 @@ export default defineComponent({
       changeMode,
       getFavoriteIcon,
       toggleFavorite,
+      cdCls,
+      cdRef,
+      cdImageRef,
 
       // --- computed ---
       playIcon,
