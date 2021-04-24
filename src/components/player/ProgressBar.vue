@@ -64,13 +64,13 @@ export default defineComponent({
 
     let touch = {}
     const onTouchStart = e => {
-      touch.touchStart = e.touches[0].pageX
+      touch.touchStartX = e.touches[0].pageX
       touch.startWidth = progressRef.value.clientWidth
     }
 
     const onTouchMove = e => {
       // 偏移量
-      const delta = e.touches[0].pageX - touch.touchStart
+      const delta = e.touches[0].pageX - touch.touchStartX
       const tempWidth = touch.startWidth + delta
       const barWidth = getBarWidth()
       const ratio = tempWidth / barWidth

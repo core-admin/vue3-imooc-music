@@ -15,8 +15,14 @@
       </div>
 
       <!-- 中间居于 包括唱片和歌词两个部分 -->
-      <div class="middle">
-        <div class="middle-l">
+      <div
+        class="middle"
+        @touchstart.prevent="onMiddleTouchStart"
+        @touchmove.prevent="onMiddleTouchMove"
+        @touchend.prevent="onMiddleTouchEnd"
+      >
+        <!-- cd唱片与歌词层切换时仅改变透明度 -->
+        <div class="middle-l" :style="middleLStyle">
           <!-- 唱片图片 -->
           <div class="cd-wrapper" ref="cdWrapperRef">
             <div class="cd" ref="cdRef">
@@ -30,7 +36,7 @@
         </div>
 
         <!-- 歌词显示 -->
-        <scroll class="middle-r" ref="lyricScrollRef">
+        <scroll class="middle-r" ref="lyricScrollRef" :style="middleRStyle">
           <div class="lyric-wrapper">
             <div v-if="currentLyric" ref="lyricListRef">
               <p
@@ -50,6 +56,12 @@
       </div>
 
       <div class="bottom">
+        <!-- 面板切换指示点 -->
+        <div class="dot-wrapper">
+          <span class="dot" :class="{ active: currentShow === 'cd' }"></span>
+          <span class="dot" :class="{ active: currentShow === 'lyric' }"></span>
+        </div>
+
         <div class="progress-wrapper">
           <span class="time time-l">{{ formatTime(currentTime) }}</span>
           <div class="progress-bar-wrapper">
@@ -103,6 +115,7 @@ import useMode from './useMode'
 import useFavorite from './useFavorite'
 import useCd from './useCd'
 import useLyric from './useLyric'
+import useMiddleInteractive from './useMiddleInteractive'
 import scroll from '@/components/base/scroll/scroll'
 
 export default defineComponent({
@@ -140,17 +153,13 @@ export default defineComponent({
 
     // 处理歌曲播放模式修改
     const { modeIcon, playMode, changeMode } = useMode()
+
     // 处理歌曲收藏与删除
     const { getFavoriteIcon, toggleFavorite } = useFavorite()
 
-    // computed
-    const playIcon = computed(() => (playing.value ? 'icon-pause' : 'icon-play'))
-    // 禁用点击
-    const disabledCls = computed(() => (songReady.value ? '' : 'disable'))
-    // 进度 0 - 1
-    const progress = computed(() => currentTime.value / currentSong.value.duration)
     // 唱片
     const { cdCls, cdRef, cdImageRef } = useCd()
+
     // 处理歌词
     // eslint-disable-next-line
     const {
@@ -163,6 +172,26 @@ export default defineComponent({
       playLyric,
       stopLyric
     } = useLyric({ songReady, currentTime })
+
+    // 处理cd面板与歌词面板的手指左右滑动切换
+    const {
+      currentShow,
+      middleLStyle,
+      middleRStyle,
+      onMiddleTouchStart,
+      onMiddleTouchMove,
+      onMiddleTouchEnd
+    } = useMiddleInteractive()
+
+    // ------ computed ------
+
+    const playIcon = computed(() => (playing.value ? 'icon-pause' : 'icon-play'))
+
+    // 禁用点击
+    const disabledCls = computed(() => (songReady.value ? '' : 'disable'))
+
+    // 进度 0 - 1
+    const progress = computed(() => currentTime.value / currentSong.value.duration)
 
     // ------ watch ------
 
@@ -334,6 +363,12 @@ export default defineComponent({
       lyricListRef,
       pureMusicLyric,
       playingLyric,
+      currentShow,
+      middleLStyle,
+      middleRStyle,
+      onMiddleTouchStart,
+      onMiddleTouchMove,
+      onMiddleTouchEnd,
 
       // --- computed ---
       playIcon,
