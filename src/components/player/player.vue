@@ -16,7 +16,7 @@
 
       <!-- 中间居于 包括唱片和歌词两个部分 -->
       <div class="middle">
-        <div class="middle-l">
+        <div class="middle-l" v-show="false">
           <!-- 唱片图片 -->
           <div class="cd-wrapper" ref="cdWrapperRef">
             <div class="cd" ref="cdRef">
@@ -28,6 +28,25 @@
             <div class="playing-lyric"></div>
           </div>
         </div>
+
+        <!-- 歌词显示 -->
+        <scroll class="middle-r" ref="lyricScrollRef">
+          <div class="lyric-wrapper">
+            <div v-if="currentLyric" ref="lyricListRef">
+              <p
+                class="text"
+                :class="{ current: currentLineNum === index }"
+                :key="line.num"
+                v-for="(line, index) in currentLyric.lines"
+              >
+                {{ line.txt }}
+              </p>
+            </div>
+            <div class="pure-music" v-show="pureMusicLyric">
+              <p>{{ pureMusicLyric }}</p>
+            </div>
+          </div>
+        </scroll>
       </div>
 
       <div class="bottom">
@@ -83,12 +102,15 @@ import ProgressBar from './ProgressBar'
 import useMode from './useMode'
 import useFavorite from './useFavorite'
 import useCd from './useCd'
+import useLyric from './useLyric'
+import scroll from '@/components/base/scroll/scroll'
 
 export default defineComponent({
   name: 'player',
   props: ['test'],
   components: {
-    ProgressBar
+    ProgressBar,
+    scroll
   },
   setup() {
     // ------ state ------
@@ -129,6 +151,17 @@ export default defineComponent({
     const progress = computed(() => currentTime.value / currentSong.value.duration)
     // 唱片
     const { cdCls, cdRef, cdImageRef } = useCd()
+    // 处理歌词
+    // eslint-disable-next-line
+    const {
+      currentLyric,
+      currentLineNum,
+      lyricScrollRef,
+      lyricListRef,
+      pureMusicLyric,
+      playLyric,
+      stopLyric
+    } = useLyric({ songReady, currentTime })
 
     // ------ watch ------
 
@@ -145,7 +178,14 @@ export default defineComponent({
       if (!songReady.value) return
 
       const audioEl = audioRef.value
-      newPlaying ? audioEl.play() : audioEl.pause()
+
+      if (newPlaying) {
+        audioEl.play()
+        playLyric()
+      } else {
+        audioEl.pause()
+        stopLyric()
+      }
     })
 
     // ------ audio methods ------
@@ -160,6 +200,7 @@ export default defineComponent({
     const ready = () => {
       if (songReady.value) return
       songReady.value = true
+      playLyric()
     }
 
     // 防止歌曲出现错误的情况下 造成所有歌曲都不能切换的问题
@@ -250,6 +291,10 @@ export default defineComponent({
     const onProgressChanging = progress => {
       progressChanging = true
       currentTime.value = currentSong.value.duration * progress
+
+      // 拖拽进度条的时候 歌词仅同步滚动 不让它自动滚动
+      playLyric()
+      stopLyric()
     }
 
     // 拖动完毕才去更新真实的audio的进度
@@ -260,6 +305,7 @@ export default defineComponent({
       if (!playing.value) {
         store.commit('setPlayingState', true)
       }
+      playLyric()
     }
 
     return {
@@ -279,6 +325,13 @@ export default defineComponent({
       cdCls,
       cdRef,
       cdImageRef,
+      currentLyric,
+      currentLineNum,
+      playLyric,
+      stopLyric,
+      lyricScrollRef,
+      lyricListRef,
+      pureMusicLyric,
 
       // --- computed ---
       playIcon,
@@ -404,7 +457,7 @@ export default defineComponent({
           }
         }
         .playing-lyric-wrapper {
-          width: 80%;
+          width: 90%;
           margin: 30px auto 0 auto;
           overflow: hidden;
           text-align: center;
