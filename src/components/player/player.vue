@@ -16,7 +16,7 @@
 
       <!-- 中间居于 包括唱片和歌词两个部分 -->
       <div class="middle">
-        <div class="middle-l" v-show="false">
+        <div class="middle-l">
           <!-- 唱片图片 -->
           <div class="cd-wrapper" ref="cdWrapperRef">
             <div class="cd" ref="cdRef">
@@ -25,7 +25,7 @@
           </div>
           <!-- 缩略歌词 -->
           <div class="playing-lyric-wrapper">
-            <div class="playing-lyric"></div>
+            <div class="playing-lyric">{{ playingLyric }}</div>
           </div>
         </div>
 
@@ -159,6 +159,7 @@ export default defineComponent({
       lyricScrollRef,
       lyricListRef,
       pureMusicLyric,
+      playingLyric,
       playLyric,
       stopLyric
     } = useLyric({ songReady, currentTime })
@@ -332,6 +333,7 @@ export default defineComponent({
       lyricScrollRef,
       lyricListRef,
       pureMusicLyric,
+      playingLyric,
 
       // --- computed ---
       playIcon,

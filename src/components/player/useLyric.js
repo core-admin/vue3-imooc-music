@@ -7,16 +7,26 @@ export default function useLyric({ songReady, currentTime }) {
   const store = useStore()
   const currentSong = computed(() => store.getters.currentSong)
 
+  // 歌词解析包实例化数据
   const currentLyric = ref(null)
+  // 歌曲播放所在的歌词行数
   const currentLineNum = ref(0)
-
+  // 歌词的包装scroll组件
   const lyricScrollRef = ref(null)
+  // 承载每一条歌词dom元素的父元素
   const lyricListRef = ref(null)
 
+  // 存音乐展示的文本
   const pureMusicLyric = ref('')
+  // 缩略版歌词 一行展示的
+  const playingLyric = ref('')
 
-  function handleLyric({ lineNum }) {
+  function handleLyric({ lineNum, txt }) {
+    // 所在行索引
     currentLineNum.value = lineNum
+    // 当前所在行的数据
+    playingLyric.value = txt
+
     const scrollComp = lyricScrollRef.value
     const listEl = lyricListRef.value
 
@@ -53,6 +63,9 @@ export default function useLyric({ songReady, currentTime }) {
     stopLyric()
     // 清理掉 让playLyric方法执行的时候 自动进入非空判断
     currentLyric.value = null
+    // 重置数据
+    pureMusicLyric.value = ''
+    playingLyric.value = ''
 
     const lyric = await getLyric(newSong)
 
@@ -69,13 +82,12 @@ export default function useLyric({ songReady, currentTime }) {
     currentLyric.value = new Lyric(lyric, handleLyric)
 
     const hasLyric = currentLyric.value.lines.length
-    if (!hasLyric) {
-      pureMusicLyric.value = lyric.replace(/^\[(\d{2}):(\d{2}):(\d{2})]/g, '')
-      return
-    }
-
-    if (songReady.value) {
-      playLyric()
+    if (hasLyric) {
+      if (songReady.value) {
+        playLyric()
+      }
+    } else {
+      playingLyric.value = pureMusicLyric.value = lyric.replace(/^\[(\d{2}):(\d{2}):(\d{2})]/g, '')
     }
   })
 
@@ -87,6 +99,7 @@ export default function useLyric({ songReady, currentTime }) {
     stopLyric,
     lyricScrollRef,
     lyricListRef,
-    pureMusicLyric
+    pureMusicLyric,
+    playingLyric
   }
 }
