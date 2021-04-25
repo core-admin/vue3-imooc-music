@@ -1,5 +1,5 @@
 <template>
-  <div class="player">
+  <div class="player" v-show="playlist.length">
     <div class="normal-player" v-show="fullScreen">
       <!-- 模糊背景层 -->
       <div class="background">
@@ -66,6 +66,7 @@
           <span class="time time-l">{{ formatTime(currentTime) }}</span>
           <div class="progress-bar-wrapper">
             <ProgressBar
+              ref="progressBarRef"
               :progress="progress"
               @progress-changing="onProgressChanging"
               @progress-changed="onProgressChanged"
@@ -94,6 +95,8 @@
       </div>
     </div>
 
+    <mini-player :progress="progress" :toggle-play="togglePlay" />
+
     <audio
       ref="audioRef"
       @pause="pause"
@@ -106,7 +109,7 @@
 </template>
 
 <script>
-import { defineComponent, computed, watch, ref } from 'vue'
+import { defineComponent, computed, watch, ref, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import { PLAY_MODE } from '@/assets/js/constant'
 import { formatTime } from '@/assets/js/util'
@@ -117,13 +120,14 @@ import useCd from './useCd'
 import useLyric from './useLyric'
 import useMiddleInteractive from './useMiddleInteractive'
 import scroll from '@/components/base/scroll/scroll'
+import MiniPlayer from './MiniPlayer'
 
 export default defineComponent({
   name: 'player',
-  props: ['test'],
   components: {
     ProgressBar,
-    scroll
+    scroll,
+    MiniPlayer
   },
   setup() {
     // ------ state ------
@@ -134,6 +138,8 @@ export default defineComponent({
     const currentTime = ref(0)
     // 是否在拖拽进度条
     let progressChanging = false
+    // 进度条实例
+    const progressBarRef = ref(null)
 
     // ------ vuex ------
 
@@ -215,6 +221,14 @@ export default defineComponent({
       } else {
         audioEl.pause()
         stopLyric()
+      }
+    })
+
+    watch(fullScreen, async newFullScreen => {
+      if (newFullScreen) {
+        // 数据变化后 dom可能还没更新完毕
+        await nextTick()
+        progressBarRef.value.setOffset(progress.value)
       }
     })
 
@@ -342,6 +356,8 @@ export default defineComponent({
       // --- state ---
       audioRef,
       currentTime,
+      playlist,
+      progressBarRef,
 
       // --- vuex ---
       fullScreen,
@@ -521,8 +537,10 @@ export default defineComponent({
             line-height: 32px;
             color: $color-text-l;
             font-size: $font-size-medium;
+            transition: all 0.3s;
             &.current {
               color: $color-text;
+              font-size: 16px;
             }
           }
           .pure-music {

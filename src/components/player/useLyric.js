@@ -1,5 +1,5 @@
 import { useStore } from 'vuex'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { getLyric } from '@/service/song'
 import Lyric from 'lyric-parser'
 
@@ -21,9 +21,28 @@ export default function useLyric({ songReady, currentTime }) {
   // 缩略版歌词 一行展示的
   const playingLyric = ref('')
 
+  // 滚动歌词时 禁止歌词自动滚动
+  let touching = false
+
+  onMounted(() => {
+    const bs = lyricScrollRef.value.scroll
+    const hooks = bs.scroller.actionsHandler.hooks
+    hooks.on('start', () => {
+      bs.stop()
+      touching = true
+    })
+
+    hooks.on('end', () => {
+      touching = false
+    })
+  })
+
   function handleLyric({ lineNum, txt }) {
     // 所在行索引
     currentLineNum.value = lineNum
+
+    if (touching) return
+
     // 当前所在行的数据
     playingLyric.value = txt
 

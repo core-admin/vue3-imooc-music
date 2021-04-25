@@ -51,16 +51,15 @@ export default defineComponent({
       return `transform: translate3d(${offset.value}px, 0, 0)`
     })
 
-    watch(
-      () => props.progress,
-      newProgress => {
-        const barWidth = getBarWidth()
-        offset.value = barWidth * newProgress
-      }
-    )
+    watch(() => props.progress, setOffset)
 
     const getBarWidth = (progressBtnWidth = 0) =>
       progressBarRef.value?.clientWidth - progressBtnWidth || 0
+
+    function setOffset(progress) {
+      const barWidth = getBarWidth()
+      offset.value = barWidth * progress
+    }
 
     let touch = {}
     const onTouchStart = e => {
@@ -103,7 +102,8 @@ export default defineComponent({
       onTouchStart,
       onTouchMove,
       onTouchEnd,
-      onClick
+      onClick,
+      setOffset
     }
   }
 })
