@@ -221,6 +221,8 @@ export default defineComponent({
       const audioEl = audioRef.value
       audioEl.src = newSong.url
       audioEl.play()
+
+      store.commit('setPlayingState', true)
     })
 
     watch(playing, newPlaying => {
@@ -316,10 +318,6 @@ export default defineComponent({
       }
 
       store.commit('setCurrentIndex', index)
-
-      if (!playing.value) {
-        store.commit('setPlayingState', true)
-      }
     }
 
     const next = () => {
@@ -339,9 +337,6 @@ export default defineComponent({
       }
 
       store.commit('setCurrentIndex', index)
-      if (!playing.value) {
-        store.commit('setPlayingState', true)
-      }
     }
 
     // progress cb
@@ -440,6 +435,7 @@ export default defineComponent({
     bottom: 0;
     z-index: 150;
     background: $color-background;
+
     .background {
       position: absolute;
       left: 0;
@@ -449,21 +445,25 @@ export default defineComponent({
       z-index: -1;
       opacity: 0.6;
       filter: blur(20px);
+
       img {
         width: 100%;
         height: 100%;
         object-fit: cover;
       }
     }
+
     .top {
       position: relative;
       margin-bottom: 25px;
+
       .back {
         position: absolute;
         top: 0;
         left: 6px;
         z-index: 50;
       }
+
       .icon-back {
         display: block;
         padding: 9px;
@@ -471,6 +471,7 @@ export default defineComponent({
         color: $color-theme;
         transform: rotate(-90deg);
       }
+
       .title {
         width: 70%;
         margin: 0 auto;
@@ -480,6 +481,7 @@ export default defineComponent({
         font-size: $font-size-large;
         color: $color-text;
       }
+
       .subtitle {
         line-height: 20px;
         text-align: center;
@@ -487,6 +489,7 @@ export default defineComponent({
         color: $color-text;
       }
     }
+
     .middle {
       position: fixed;
       width: 100%;
@@ -494,6 +497,7 @@ export default defineComponent({
       bottom: 170px;
       white-space: nowrap;
       font-size: 0;
+
       .middle-l {
         display: inline-block;
         vertical-align: top;
@@ -501,6 +505,7 @@ export default defineComponent({
         width: 100%;
         height: 0;
         padding-top: 80%;
+
         .cd-wrapper {
           position: absolute;
           left: 10%;
@@ -508,10 +513,12 @@ export default defineComponent({
           width: 80%;
           box-sizing: border-box;
           height: 100%;
+
           .cd {
             width: 100%;
             height: 100%;
             border-radius: 50%;
+
             img {
               position: absolute;
               left: 0;
@@ -522,16 +529,19 @@ export default defineComponent({
               border-radius: 50%;
               border: 10px solid rgba(255, 255, 255, 0.1);
             }
+
             .playing {
               animation: rotate 20s linear infinite;
             }
           }
         }
+
         .playing-lyric-wrapper {
           width: 90%;
           margin: 30px auto 0 auto;
           overflow: hidden;
           text-align: center;
+
           .playing-lyric {
             height: 20px;
             line-height: 20px;
@@ -540,27 +550,32 @@ export default defineComponent({
           }
         }
       }
+
       .middle-r {
         display: inline-block;
         vertical-align: top;
         width: 100%;
         height: 100%;
         overflow: hidden;
+
         .lyric-wrapper {
           width: 80%;
           margin: 0 auto;
           overflow: hidden;
           text-align: center;
+
           .text {
             line-height: 32px;
             color: $color-text-l;
             font-size: $font-size-medium;
             transition: all 0.3s;
+
             &.current {
               color: $color-text;
               font-size: 16px;
             }
           }
+
           .pure-music {
             padding-top: 50%;
             line-height: 32px;
@@ -570,13 +585,16 @@ export default defineComponent({
         }
       }
     }
+
     .bottom {
       position: absolute;
       bottom: 50px;
       width: 100%;
+
       .dot-wrapper {
         text-align: center;
         font-size: 0;
+
         .dot {
           display: inline-block;
           vertical-align: middle;
@@ -585,6 +603,7 @@ export default defineComponent({
           height: 8px;
           border-radius: 50%;
           background: $color-text-l;
+
           &.active {
             width: 20px;
             border-radius: 5px;
@@ -592,74 +611,93 @@ export default defineComponent({
           }
         }
       }
+
       .progress-wrapper {
         display: flex;
         align-items: center;
         width: 80%;
         margin: 0px auto;
         padding: 10px 0;
+
         .time {
           color: $color-text;
           font-size: $font-size-small;
           flex: 0 0 46px;
           line-height: 30px;
           flex-shrink: 0;
+
           &.time-l {
             text-align: left;
           }
+
           &.time-r {
             text-align: right;
           }
         }
+
         .progress-bar-wrapper {
           flex: 1;
         }
       }
+
       .operators {
         display: flex;
         align-items: center;
+
         .icon {
           flex: 1;
           color: $color-theme;
+
           &.disable {
             color: $color-theme-d;
           }
+
           i {
             font-size: 30px;
           }
         }
+
         .i-left {
           text-align: right;
         }
+
         .i-center {
           padding: 0 20px;
           text-align: center;
+
           i {
             font-size: 40px;
           }
         }
+
         .i-right {
           text-align: left;
         }
+
         .icon-favorite {
           color: $color-sub-theme;
         }
       }
     }
+
     &.normal-enter-active,
     &.normal-leave-active {
       transition: all 0.6s;
+
       .top,
       .bottom {
         transition: all 0.6s cubic-bezier(0.45, 0, 0.55, 1);
       }
     }
+
     &.normal-enter-from,
     &.normal-leave-to {
       opacity: 0;
+
       .top {
         transform: translate3d(0, -100px, 0);
       }
+
       .bottom {
         transform: translate3d(0, 100px, 0);
       }

@@ -49,7 +49,9 @@ export default function useMiniSlider() {
 
           sliderVal.on('slidePageChanged', ({ pageX }) => {
             store.commit('setCurrentIndex', pageX)
-            store.commit('setPlayingState', true)
+            // 问题记录 当在播放列表中删除正在播放歌曲的前面歌曲时 会触发这个回调
+            // 导致当歌曲暂停时 删除前面的歌曲歌曲状态改成了自动播放
+            // store.commit('setPlayingState', true)
           })
         } else {
           sliderVal.refresh()
