@@ -7,27 +7,29 @@
             <h1 class="title">
               <i class="icon" :class="modeIcon" @click="changeMode"></i>
               <span class="text">{{ modeText }}</span>
-              <!--<span class="clear">-->
-              <!--  <i class="icon-clear"></i>-->
-              <!--</span>-->
+              <span class="clear">
+                <i class="icon-clear"></i>
+              </span>
             </h1>
           </div>
           <scroll ref="scrollRef" class="list-content">
-            <!--<transition-group ref="listRef" name="list" tag="ul">-->
-            <ul>
-              <li class="item" v-for="song in sequenceList" :key="song.id">
+            <transition-group ref="listRef" name="list" tag="ul">
+              <li
+                class="item"
+                v-for="song in sequenceList"
+                :key="song.id"
+                @click="selectItem(song)"
+              >
                 <i class="current" :class="getCurrentIcon(song)"></i>
                 <span class="text">{{ song.name }}</span>
-                <span class="favorite" @click="toggleFavorite">
+                <span class="favorite" @click.stop="toggleFavorite">
                   <i :class="getFavoriteIcon(song)"></i>
                 </span>
-                <!--<span class="delete" @click.stop="removeSong(song)" :class="{ disable: removing }">-->
-                <!--  <i class="icon-delete"></i>-->
-                <!--</span>-->
+                <span class="delete" @click.stop="removeSong(song)" :class="{ disable: removing }">
+                  <i class="icon-delete"></i>
+                </span>
               </li>
-            </ul>
-
-            <!--</transition-group>-->
+            </transition-group>
           </scroll>
           <!--<div class="list-add">-->
           <!--  <div class="add">-->
@@ -78,6 +80,41 @@ export default defineComponent({
 
     function show() {
       visible.value = true
+      nextTick(() => {
+        refreshScroll()
+        scrollToCurrent()
+      })
+    }
+
+    const scrollRef = ref(null)
+
+    function refreshScroll() {
+      scrollRef.value.scroll.refresh()
+    }
+
+    const listRef = ref(null)
+
+    function scrollToCurrent() {
+      const index = sequenceList.value.findIndex(song => song.id === currentSong.value.id)
+      const target = listRef.value.$el.children[index]
+      scrollRef.value.scroll.scrollToElement(target, 300)
+    }
+
+    function selectItem(song) {
+      const index = playlist.value.findIndex(v => song.id === v.id)
+      store.commit('setCurrentIndex', index)
+      store.commit('setPlayingState', true)
+    }
+
+    watch(currentSong, async () => {
+      if (!visible.value) return
+      await nextTick()
+      scrollToCurrent()
+    })
+
+    const removing = ref(false)
+    function removeSong(song) {
+      store.dispatch('removeSong', song)
     }
 
     return {
@@ -92,7 +129,12 @@ export default defineComponent({
       toggleFavorite,
       getCurrentIcon,
       hide,
-      show
+      show,
+      scrollRef,
+      listRef,
+      selectItem,
+      removing,
+      removeSong
     }
   }
 })

@@ -44,3 +44,23 @@ export const changeMode = ({ state, getters, commit }, mode) => {
 export const randomSelectionSong = ({ state, commit }) => {
   commit('setPlaylist', shuffle(state.sequenceList))
 }
+
+const findIndex = (list, song) => {
+  return list.findIndex(item => item.id === song.id)
+}
+
+export const removeSong = ({ commit, state }, song) => {
+  const sequenceList = state.sequenceList.slice()
+  const playlist = state.playlist.slice()
+  const seqIndex = findIndex(sequenceList, song)
+  const playIndex = findIndex(playlist, song)
+  let currentIndex = state.currentIndex
+  sequenceList.splice(seqIndex, 1)
+  playlist.splice(playIndex, 1)
+  if (playIndex < currentIndex || currentIndex === playlist.length) {
+    currentIndex--
+  }
+  commit('setSequenceList', sequenceList)
+  commit('setPlaylist', playlist)
+  commit('setCurrentIndex', currentIndex)
+}
