@@ -1,5 +1,5 @@
 <template>
-  <Srcoll class="index-list" ref="scrollRef" :probe-type="3" @scroll="onScroll">
+  <Scroll class="index-list" ref="scrollRef" :probe-type="3" @scroll="onScroll">
     <ul ref="groupRef">
       <li class="group" v-for="group in data" :key="group.title">
         <h2 class="title">{{ group.title }}</h2>
@@ -37,11 +37,12 @@
         </li>
       </ul>
     </div>
-  </Srcoll>
+  </Scroll>
 </template>
 
 <script>
-import Srcoll from '@/components/base/scroll/scroll'
+// import Scroll from '@/components/base/scroll/scroll'
+import ScrollWrapper from '@/components/wrapper-scroll'
 import { defineComponent } from 'vue'
 import useFixed from './useFixed'
 import useShortcut from './useShortcut'
@@ -49,7 +50,8 @@ import useShortcut from './useShortcut'
 export default defineComponent({
   name: 'IndexList',
   components: {
-    Srcoll
+    // Scroll,
+    Scroll: ScrollWrapper
   },
   props: {
     data: {
@@ -95,8 +97,10 @@ export default defineComponent({
   height: 100%;
   overflow: hidden;
   background-color: $color-background;
+
   .group {
     padding-bottom: 30px;
+
     .title {
       height: 30px;
       line-height: 30px;
@@ -105,15 +109,18 @@ export default defineComponent({
       color: $color-text-l;
       background-color: $color-highlight-background;
     }
+
     .item {
       display: flex;
       align-items: center;
       padding: 20px 0 0 30px;
+
       .avatar {
         width: 50px;
         height: 50px;
         border-radius: 50%;
       }
+
       .name {
         margin-left: 20px;
         color: $color-text-l;
@@ -127,6 +134,7 @@ export default defineComponent({
     top: 0;
     left: 0;
     width: 100%;
+
     .fixed-title {
       height: 30px;
       line-height: 30px;
@@ -153,6 +161,7 @@ export default defineComponent({
       line-height: 1;
       color: $color-text-l;
       font-size: $font-size-small;
+
       &.current {
         color: $color-theme;
       }

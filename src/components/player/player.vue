@@ -133,7 +133,7 @@ import scroll from '@/components/base/scroll/scroll'
 import MiniPlayer from './MiniPlayer'
 
 export default defineComponent({
-  name: 'player',
+  name: 'Player',
   components: {
     ProgressBar,
     scroll,

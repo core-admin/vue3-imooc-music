@@ -63,7 +63,7 @@ import useMode from './useMode'
 import useFavorite from './useFavorite'
 
 export default defineComponent({
-  name: 'playlist',
+  name: 'Playlist',
   components: {
     Scroll,
     Confirm

@@ -24,7 +24,7 @@
 
 <script>
 export default {
-  name: 'progress-circle',
+  name: 'ProgressCircle',
   props: {
     radius: {
       type: Number,

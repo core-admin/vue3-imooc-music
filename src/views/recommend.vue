@@ -35,13 +35,15 @@
 <script>
 import { getRecommend } from '@/service/recommend'
 import Slider from '@/components/base/slider/slider'
-import Scroll from '@/components/base/scroll/scroll'
+// import Scroll from '@/components/base/scroll/scroll'
+import ScrollWrapper from '@/components/wrapper-scroll'
 
 export default {
   name: 'Home',
   components: {
     Slider,
-    Scroll
+    Scroll: ScrollWrapper
+    // Scroll
   },
   data() {
     return {
@@ -69,15 +71,18 @@ export default {
   top: 88px;
   bottom: 0;
   overflow: scroll;
+
   .recommend-content {
     height: 100%;
     overflow: hidden;
+
     .slider-wrapper {
       position: relative;
       width: 100%;
       height: 0;
       padding-top: 40%;
       overflow: hidden;
+
       .slider-content {
         position: absolute;
         left: 0;
@@ -86,6 +91,7 @@ export default {
         height: 100%;
       }
     }
+
     .recommend-list {
       .list-title {
         height: 65px;
@@ -94,6 +100,7 @@ export default {
         font-size: $font-size-medium;
         color: $color-theme;
       }
+
       .item {
         display: flex;
         box-sizing: border-box;
@@ -105,6 +112,7 @@ export default {
           width: 60px;
           padding-right: 20px;
         }
+
         .text {
           display: flex;
           flex-direction: column;
@@ -114,10 +122,12 @@ export default {
           overflow: hidden;
           font-size: $font-size-medium;
         }
+
         .name {
           margin-bottom: 10px;
           color: $color-text;
         }
+
         .title {
           color: $color-text-d;
         }

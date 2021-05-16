@@ -13,7 +13,7 @@
 <script>
 import { defineComponent } from 'vue'
 import { getSingerList } from '@/service/singer'
-import IndexList from '@/components/base/index-list/IndexList'
+import IndexList from '@/components/index-list/IndexList'
 import storage from 'good-storage'
 import { SINGER_KEY } from '@/assets/js/constant'
 
