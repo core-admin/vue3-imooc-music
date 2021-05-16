@@ -1,5 +1,5 @@
 <template>
-  <transition name="mini">
+  <transition name="mini" mode="out-in">
     <div class="mini-player" v-show="!fullScreen" @click="showNormalPlayer">
       <div class="cd-wrapper">
         <div ref="cdRef" class="cd">
@@ -22,7 +22,7 @@
       <div class="control" @click.stop="showPlaylist">
         <i class="icon-playlist"></i>
       </div>
-      <!-- <playlist ref="playlistRef"></playlist> -->
+      <playlist ref="playlistRef"></playlist>
     </div>
   </transition>
 </template>
@@ -32,13 +32,13 @@ import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import useCd from './useCd'
 import useMiniSlider from './useMiniSlider'
-import ProgressCircle from './progress-circle'
-// import Playlist from './playlist'
+import ProgressCircle from './ProgressCircle'
+import Playlist from './Playlist'
 
 export default {
   name: 'MiniPlayer',
   components: {
-    // Playlist,
+    Playlist,
     ProgressCircle
   },
   props: {
@@ -68,6 +68,10 @@ export default {
       store.commit('setFullScreen', true)
     }
 
+    function showPlaylist() {
+      playlistRef.value.show()
+    }
+
     return {
       playlistRef,
       fullScreen,
@@ -80,7 +84,8 @@ export default {
       cdRef,
       cdImageRef,
       // mini-slider
-      sliderWrapperRef
+      sliderWrapperRef,
+      showPlaylist
     }
   }
 }
@@ -97,25 +102,31 @@ export default {
   width: 100%;
   height: 60px;
   background: $color-highlight-background;
+
   .cd-wrapper {
     flex: 0 0 40px;
     width: 40px;
     height: 40px;
     padding: 0 10px 0 20px;
+
     .cd {
       height: 100%;
       width: 100%;
+
       img {
         border-radius: 50%;
+
         &.playing {
           animation: rotate 10s linear infinite;
         }
+
         &.pause {
           animation-play-state: paused;
         }
       }
     }
   }
+
   .slider-wrapper {
     display: flex;
     flex-direction: column;
@@ -123,21 +134,25 @@ export default {
     flex: 1;
     line-height: 20px;
     overflow: hidden;
+
     .slider-group {
       position: relative;
       overflow: hidden;
       white-space: nowrap;
+
       .slider-page {
         display: inline-block;
         width: 100%;
         transform: translate3d(0, 0, 0);
         backface-visibility: hidden;
+
         .name {
           margin-bottom: 2px;
           @include no-wrap();
           font-size: $font-size-medium;
           color: $color-text;
         }
+
         .desc {
           @include no-wrap();
           font-size: $font-size-small;
@@ -146,16 +161,19 @@ export default {
       }
     }
   }
+
   .control {
     flex: 0 0 30px;
     width: 30px;
     padding: 0 10px;
+
     .icon-playlist {
       position: relative;
       top: -2px;
       font-size: 28px;
       color: $color-theme-d;
     }
+
     .icon-mini {
       position: absolute;
       left: 0;
@@ -164,10 +182,16 @@ export default {
       font-size: 32px;
     }
   }
+
   &.mini-enter-active,
   &.mini-leave-active {
     transition: all 0.6s cubic-bezier(0.45, 0, 0.55, 1);
   }
+
+  &.mini-enter-active {
+    transition: all 0.6s cubic-bezier(0.45, 0, 0.55, 1);
+  }
+
   &.mini-enter-from,
   &.mini-leave-to {
     opacity: 0;
