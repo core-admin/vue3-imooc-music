@@ -32,7 +32,7 @@
 <script>
 import SongList from '@/components/base/song-list/SongList'
 import Scroll from '@/components/base/scroll/scroll'
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 const RESERVED_HEIGHT = 40
 
@@ -65,6 +65,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(['playlist']),
     noResult() {
       return !this.loading && !this.songs.length
     },
@@ -105,8 +106,10 @@ export default {
       }
     },
     scrollStyle() {
+      const bottom = this.playlist.length > 0 ? '60px' : 0
       return {
-        top: `${this.imageHeight}px`
+        top: `${this.imageHeight}px`,
+        bottom
       }
     },
     filterStyle() {
