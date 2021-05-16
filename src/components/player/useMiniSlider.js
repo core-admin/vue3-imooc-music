@@ -33,6 +33,7 @@ export default function useMiniSlider() {
     watch(sliderShow, async newSliderShow => {
       if (newSliderShow) {
         await nextTick()
+        // 防止watch多次执行 造成多次初始化操作
         if (!sliderVal) {
           sliderVal = slider.value = new BScroll(sliderWrapperRef.value, {
             click: true,
@@ -66,8 +67,12 @@ export default function useMiniSlider() {
       }
     })
 
+    // 当歌曲列表中歌曲删除时 slider需要重新刷新一遍 因为歌曲列表中的数据删除了
+    // slider中还会存在没删除歌曲之前的dom
     watch(playlist, async newList => {
+      // 歌曲列表清空后 不需要刷新
       if (sliderVal && sliderShow.value && newList.length) {
+        // 数据的变化到dom的变化时存在一个时间的 需要等待数据响应到dom上
         await nextTick()
         sliderVal.refresh()
       }

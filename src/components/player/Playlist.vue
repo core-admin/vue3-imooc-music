@@ -7,7 +7,7 @@
             <h1 class="title">
               <i class="icon" :class="modeIcon" @click="changeMode"></i>
               <span class="text">{{ modeText }}</span>
-              <span class="clear">
+              <span class="clear" @click="showConfirm">
                 <i class="icon-clear"></i>
               </span>
             </h1>
@@ -44,10 +44,19 @@
       </div>
     </transition>
   </teleport>
+
+  <Confirm
+    ref="confirmRef"
+    text="是否清空播放列表"
+    confirm-btn-text="清空"
+    @confirm="confirmClear"
+  />
 </template>
 
 <script>
 import Scroll from '@/components/base/scroll/scroll'
+import Confirm from '@/components/base/confirm/Confirm'
+
 import { defineComponent, ref, computed, nextTick, watch } from 'vue'
 import { useStore } from 'vuex'
 import useMode from './useMode'
@@ -56,7 +65,8 @@ import useFavorite from './useFavorite'
 export default defineComponent({
   name: 'playlist',
   components: {
-    Scroll
+    Scroll,
+    Confirm
   },
   setup() {
     const store = useStore()
@@ -96,6 +106,7 @@ export default defineComponent({
 
     function scrollToCurrent() {
       const index = sequenceList.value.findIndex(song => song.id === currentSong.value.id)
+      if (index === -1) return
       const target = listRef.value.$el.children[index]
       scrollRef.value.scroll.scrollToElement(target, 300)
     }
@@ -106,15 +117,38 @@ export default defineComponent({
       store.commit('setPlayingState', true)
     }
 
-    watch(currentSong, async () => {
-      if (!visible.value) return
+    watch(currentSong, async newSong => {
+      if (!visible.value || !newSong.id) {
+        return
+      }
       await nextTick()
       scrollToCurrent()
     })
 
     const removing = ref(false)
+
     function removeSong(song) {
+      if (removing.value) {
+        return
+      }
+      removing.value = true
       store.dispatch('removeSong', song)
+      // 等待删除动画结束后 删除按钮才能再次点击
+      if (playlist.value.length === 0) {
+        hide()
+      }
+      setTimeout(() => (removing.value = false), 300)
+    }
+
+    const confirmRef = ref(null)
+
+    function showConfirm() {
+      confirmRef.value.show()
+    }
+
+    function confirmClear() {
+      hide()
+      store.dispatch('clearSongList')
     }
 
     return {
@@ -134,7 +168,10 @@ export default defineComponent({
       listRef,
       selectItem,
       removing,
-      removeSong
+      removeSong,
+      confirmRef,
+      showConfirm,
+      confirmClear
     }
   }
 })

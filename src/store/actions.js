@@ -52,15 +52,32 @@ const findIndex = (list, song) => {
 export const removeSong = ({ commit, state }, song) => {
   const sequenceList = state.sequenceList.slice()
   const playlist = state.playlist.slice()
+
   const seqIndex = findIndex(sequenceList, song)
   const playIndex = findIndex(playlist, song)
-  let currentIndex = state.currentIndex
+  if (playIndex < 0) {
+    return
+  }
+
   sequenceList.splice(seqIndex, 1)
   playlist.splice(playIndex, 1)
+
+  let currentIndex = state.currentIndex
   if (playIndex < currentIndex || currentIndex === playlist.length) {
     currentIndex--
   }
+
   commit('setSequenceList', sequenceList)
   commit('setPlaylist', playlist)
   commit('setCurrentIndex', currentIndex)
+  if (playlist.length === 0) {
+    commit('setPlayingState', false)
+  }
+}
+
+export const clearSongList = ({ commit }) => {
+  commit('setSequenceList', [])
+  commit('setPlaylist', [])
+  commit('setCurrentIndex', 0)
+  commit('setPlayingState', false)
 }
