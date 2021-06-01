@@ -1,13 +1,4 @@
-import {
-  ref,
-  computed,
-  watch,
-  nextTick,
-  onMounted,
-  onUnmounted,
-  onActivated,
-  onDeactivated
-} from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 
 import { useStore } from 'vuex'
 import BScroll from '@better-scroll/core'

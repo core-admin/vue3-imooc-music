@@ -139,7 +139,7 @@ export default {
     onScroll(pos) {
       this.scrollY = -pos.y
     },
-    selectItem({ song, index }) {
+    selectItem({ index }) {
       this.selectPlay({
         list: this.songs,
         index

@@ -9,7 +9,8 @@ export default {
   name: 'WrapScroll',
   props: Scroll.props,
   emits: Scroll.emits,
-  render(ctx, _cache, $props, $setup) {
+  // render(ctx, _cache, $props, $setup)
+  render(ctx) {
     return h(
       Scroll,
       mergeProps(ctx.$props, {
