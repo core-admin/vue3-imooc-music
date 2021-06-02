@@ -3,27 +3,50 @@
     <div class="search-input-wrapper">
       <search-input v-model="query" />
     </div>
+    <div class="search-content">
+      <div class="hot-keys">
+        <h1 class="title">热门搜索</h1>
+        <ul>
+          <li class="item" v-for="item in hotKeys" :key="item.id" @click="addQuery(item.key)">
+            <span>{{ item.key }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { defineComponent, ref, watch } from 'vue'
 import SearchInput from '@/components/search/SearchInput'
+import Scroll from '@/components/wrapper-scroll'
+import { getHotKeys } from '@/service/search'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
+import storage from 'good-storage'
+import { SINGER_KEY } from '@/assets/js/constant'
 
 export default defineComponent({
   name: 'Search',
   components: {
-    SearchInput
+    SearchInput,
+    Scroll
   },
   setup() {
     const query = ref(null)
 
-    watch(query, val => {
-      console.log(val)
-    })
+    const hotKeys = ref([])
+
+    getHotKeys().then(res => (hotKeys.value = res.hotKeys))
+
+    function addQuery(val) {
+      query.value = val
+    }
 
     return {
-      query
+      query,
+      hotKeys,
+      addQuery
     }
   }
 })
