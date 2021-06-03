@@ -59,6 +59,9 @@ export default defineComponent({
     })
 
     async function searchFirst() {
+      if (!props.query) {
+        return
+      }
       page.value = 1
       songs.value = []
       singer.value = null
@@ -82,12 +85,19 @@ export default defineComponent({
       }
     )
 
-    const { isPullUpLoad, rootRef, scroll } = usePullUpLoad(searchMore)
+    // 首次请求不希望用户触发上拉加载 且 自动填充一屏数据的时候也不可以触发上拉加载
+    // 避免触发多个loading的效果
+    const manualLoading = ref(false)
+    const preventPullUpload = computed(() => loading.value || manualLoading.value)
 
-    const pullUpLoading = computed(() => isPullUpLoad.value && hasMore.value)
+    const { isPullUpLoad, rootRef, scroll } = usePullUpLoad(searchMore, preventPullUpload)
+
+    const pullUpLoading = computed(
+      () => manualLoading.value || (isPullUpLoad.value && hasMore.value)
+    )
 
     async function searchMore() {
-      if (!hasMore.value) {
+      if (!hasMore.value || !props.query) {
         return
       }
       page.value++
@@ -103,7 +113,9 @@ export default defineComponent({
     async function makeItScrollable() {
       // 不可滚动（容器的高度大于内容的高度）
       if (scroll.value.maxScrollY >= -1) {
+        manualLoading.value = true
         await searchMore()
+        manualLoading.value = false
       }
     }
 
