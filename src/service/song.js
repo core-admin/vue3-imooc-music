@@ -14,7 +14,7 @@ export const processSongs = songs => {
         ...song,
         url: map[song.mid]
       }))
-      .filter(song => song.url.indexOf('vkey') > -1) // 只有url中包含vkey的才代表当前歌曲是一个可播放的
+      .filter(song => song.url && song.url.indexOf('vkey') > -1) // 只有url中包含vkey的才代表当前歌曲是一个可播放的
   })
 }
 

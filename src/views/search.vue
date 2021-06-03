@@ -3,7 +3,7 @@
     <div class="search-input-wrapper">
       <search-input v-model="query" />
     </div>
-    <div class="search-content">
+    <div class="search-content" v-show="!query">
       <div class="hot-keys">
         <h1 class="title">热门搜索</h1>
         <ul>
@@ -13,13 +13,17 @@
         </ul>
       </div>
     </div>
+    <div class="search-result" v-show="query">
+      <suggest :query="query" />
+    </div>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref, watch } from 'vue'
+import { defineComponent, ref } from 'vue'
 import SearchInput from '@/components/search/SearchInput'
 import Scroll from '@/components/wrapper-scroll'
+import Suggest from '@/components/search/Suggest'
 import { getHotKeys } from '@/service/search'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
@@ -30,7 +34,8 @@ export default defineComponent({
   name: 'Search',
   components: {
     SearchInput,
-    Scroll
+    Scroll,
+    Suggest
   },
   setup() {
     const query = ref(null)
