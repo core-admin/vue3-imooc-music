@@ -22,16 +22,17 @@
           <p class="text"> {{ song.singer }}-{{ song.name }} </p>
         </div>
       </li>
-      <!-- <div class="suggest-item" v-loading:[loadingText]="pullUpLoading"></div> -->
+      <div class="suggest-item" v-loading:[loadingText]="pullUpLoading"></div>
     </ul>
   </div>
 </template>
 
 <script>
 // 在此处尝试使用vue3最新语法 script setup进行开发，发现设置的指令上使用的变量未生效（坑！！！）
-import { defineComponent, ref, watch, computed } from 'vue'
+import { defineComponent, ref, watch, computed, nextTick } from 'vue'
 import { search } from '@/service/search'
 import { processSongs } from '@/service/song'
+import usePullUpLoad from './usePullUpLoad'
 
 export default defineComponent({
   props: {
@@ -67,6 +68,8 @@ export default defineComponent({
       songs.value = await processSongs(res.songs)
       singer.value = res.singer
       hasMore.value = res.hasMore
+      await nextTick()
+      await makeItScrollable()
     }
 
     watch(
@@ -78,6 +81,31 @@ export default defineComponent({
         searchFirst()
       }
     )
+
+    const { isPullUpLoad, rootRef, scroll } = usePullUpLoad(searchMore)
+
+    const pullUpLoading = computed(() => isPullUpLoad.value && hasMore.value)
+
+    async function searchMore() {
+      if (!hasMore.value) {
+        return
+      }
+      page.value++
+      const res = await search(props.query, page.value, props.showSinger)
+      songs.value = songs.value.concat(res.songs)
+      songs.value = songs.value.concat(await processSongs(res.songs))
+      hasMore.value = res.hasMore
+      await nextTick()
+      await makeItScrollable()
+    }
+
+    // 对不满足一屏的数据做出处理 让数据满足一屏显示
+    async function makeItScrollable() {
+      // 不可滚动（容器的高度大于内容的高度）
+      if (scroll.value.maxScrollY >= -1) {
+        await searchMore()
+      }
+    }
 
     function selectSinger() {}
 
@@ -93,7 +121,10 @@ export default defineComponent({
       loading,
       noResult,
       selectSinger,
-      selectSong
+      selectSong,
+      isPullUpLoad,
+      rootRef,
+      pullUpLoading
     }
   }
 })
