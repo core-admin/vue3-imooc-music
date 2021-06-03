@@ -14,7 +14,7 @@
       </div>
     </div>
     <div class="search-result" v-show="query">
-      <suggest :query="query" />
+      <suggest :query="query" @select-song="selectSong" />
     </div>
   </div>
 </template>
@@ -38,6 +38,9 @@ export default defineComponent({
     Suggest
   },
   setup() {
+    const store = useStore()
+    const router = useRouter()
+
     const query = ref(null)
 
     const hotKeys = ref([])
@@ -48,10 +51,15 @@ export default defineComponent({
       query.value = val
     }
 
+    function selectSong(song) {
+      store.dispatch('addSong', song)
+    }
+
     return {
       query,
       hotKeys,
-      addQuery
+      addQuery,
+      selectSong
     }
   }
 })

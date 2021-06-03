@@ -42,7 +42,8 @@ export default defineComponent({
       default: true
     }
   },
-  setup(props) {
+  emits: ['select-song'],
+  setup(props, { emit }) {
     const singer = ref(null)
     const songs = ref([])
     const hasMore = ref(true)
@@ -119,9 +120,11 @@ export default defineComponent({
       }
     }
 
-    function selectSinger() {}
+    function selectSong(song) {
+      emit('select-song', song)
+    }
 
-    function selectSong() {}
+    function selectSinger() {}
 
     return {
       singer,
@@ -132,11 +135,11 @@ export default defineComponent({
       noResultText,
       loading,
       noResult,
-      selectSinger,
-      selectSong,
       isPullUpLoad,
       rootRef,
-      pullUpLoading
+      pullUpLoading,
+      selectSinger,
+      selectSong
     }
   }
 })
