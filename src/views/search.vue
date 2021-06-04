@@ -76,7 +76,7 @@ export default defineComponent({
     const store = useStore()
     const router = useRouter()
 
-    const query = ref(null)
+    const query = ref('')
     const hotKeys = ref([])
     const selectedSinger = ref(null)
     const { saveSearch, deleteSearch, clearSearch } = useSearchHistory()

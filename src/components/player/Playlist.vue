@@ -31,16 +31,18 @@
               </li>
             </transition-group>
           </scroll>
-          <!--<div class="list-add">-->
-          <!--  <div class="add">-->
-          <!--    <i class="icon-add"></i>-->
-          <!--    <span class="text">添加歌曲到队列</span>-->
-          <!--  </div>-->
-          <!--</div>-->
+          <div class="list-add">
+            <div class="add" @click="showAddSong">
+              <i class="icon-add"></i>
+              <span class="text">添加歌曲到队列</span>
+            </div>
+          </div>
           <div class="list-footer" @click="hide">
             <span>关闭</span>
           </div>
         </div>
+
+        <add-song ref="addSongRef"></add-song>
       </div>
     </transition>
   </teleport>
@@ -61,12 +63,14 @@ import { defineComponent, ref, computed, nextTick, watch } from 'vue'
 import { useStore } from 'vuex'
 import useMode from './useMode'
 import useFavorite from './useFavorite'
+import AddSong from '@/components/add-song/AddSong'
 
 export default defineComponent({
   name: 'Playlist',
   components: {
     Scroll,
-    Confirm
+    Confirm,
+    AddSong
   },
   setup() {
     const store = useStore()
@@ -151,6 +155,11 @@ export default defineComponent({
       store.dispatch('clearSongList')
     }
 
+    const addSongRef = ref(null)
+    function showAddSong() {
+      addSongRef.value.show()
+    }
+
     return {
       visible,
       playlist,
@@ -171,7 +180,9 @@ export default defineComponent({
       removeSong,
       confirmRef,
       showConfirm,
-      confirmClear
+      confirmClear,
+      addSongRef,
+      showAddSong
     }
   }
 })
