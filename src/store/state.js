@@ -1,5 +1,5 @@
 import { PLAY_MODE } from '@/assets/js/constant'
-import { FAVORITE_KEY } from '@/assets/js/constant'
+import { FAVORITE_KEY, SEARCH_KEY } from '@/assets/js/constant'
 import { load } from '@/assets/js/arrayStore'
 
 const state = {
@@ -16,7 +16,8 @@ const state = {
   // 播放器状态（全屏/收缩）
   fullScreen: false,
   // 收藏歌曲列表
-  favoriteList: load(FAVORITE_KEY)
+  favoriteList: load(FAVORITE_KEY),
+  searchHistory: load(SEARCH_KEY)
 }
 
 export default state
