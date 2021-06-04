@@ -131,6 +131,7 @@ import useMiddleInteractive from './useMiddleInteractive'
 import useAnimation from './useAnimation'
 import scroll from '@/components/base/scroll/scroll'
 import MiniPlayer from './MiniPlayer'
+import usePlayHistory from './usePlayHistory'
 
 export default defineComponent({
   name: 'Player',
@@ -255,11 +256,15 @@ export default defineComponent({
     */
     const pause = () => store.commit('setPlayingState', false)
 
+    const { savePlay } = usePlayHistory()
+
     // audio中存在了歌曲的缓冲数据 可以播放
     const ready = () => {
       if (songReady.value) return
       songReady.value = true
       playLyric()
+      // 保存歌曲到历史记录
+      savePlay(currentSong.value)
     }
 
     // 防止歌曲出现错误的情况下 造成所有歌曲都不能切换的问题

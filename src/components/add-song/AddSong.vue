@@ -11,7 +11,7 @@
         <div class="search-input-wrapper">
           <search-input v-model="query" placeholder="搜索歌曲"></search-input>
         </div>
-        <!-- <div v-show="!query">
+        <div v-show="!query">
           <switches :items="['最近播放', '搜索历史']" v-model="currentIndex"></switches>
           <div class="list-wrapper">
             <scroll v-if="currentIndex === 0" class="list-scroll" ref="scrollRef">
@@ -29,7 +29,7 @@
               </div>
             </scroll>
           </div>
-        </div> -->
+        </div>
         <div class="search-result" v-show="query">
           <suggest :query="query" :show-singer="false" @select-song="selectSongBySuggest">
           </suggest>
@@ -46,19 +46,32 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
+import { useStore } from 'vuex'
+import Scroll from '@/components/wrapper-scroll'
 import SearchInput from '@/components/search/SearchInput'
 import Suggest from '@/components/search/Suggest'
+import SearchList from '@/components/base/search-list/SearchList'
+import SongList from '@/components/base/song-list/SongList'
+import Switches from '@/components/base/switches/Switches'
 
 export default defineComponent({
   name: 'AddSong',
   components: {
+    Scroll,
     SearchInput,
-    Suggest
+    Suggest,
+    SearchList,
+    SongList,
+    Switches
   },
   setup() {
+    const store = useStore()
     const visible = ref(false)
     const query = ref('')
+    const currentIndex = ref(0)
+    const playHistory = computed(() => store.state.playHistory)
+    const searchHistory = computed(() => store.state.searchHistory)
 
     function show() {
       visible.value = true
@@ -68,14 +81,25 @@ export default defineComponent({
       visible.value = false
     }
 
+    function selectSongBySongList() {}
+
     function selectSongBySuggest() {}
+
+    function addQuery(val) {
+      query.value = val
+    }
 
     return {
       visible,
       query,
+      currentIndex,
+      playHistory,
+      searchHistory,
       show,
       hide,
-      selectSongBySuggest
+      selectSongBySongList,
+      selectSongBySuggest,
+      addQuery
     }
   }
 })

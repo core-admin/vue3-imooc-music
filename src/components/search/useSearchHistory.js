@@ -4,7 +4,7 @@ import { useStore } from 'vuex'
 
 export default function useSearchHistory() {
   const store = useStore()
-  const maxLen = 30
+  const maxLen = 100
 
   function saveSearch(query) {
     const searches = save(SEARCH_KEY, query, item => item === query, maxLen)
