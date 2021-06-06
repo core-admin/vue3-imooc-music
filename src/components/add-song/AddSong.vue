@@ -31,12 +31,12 @@
           <suggest :query="query" :show-singer="false" @select-song="selectSongBySuggest">
           </suggest>
         </div>
-        <!-- <message ref="messageRef">
+        <message ref="messageRef" :delay="3000" @closed="messageClosed">
           <div class="message-title">
             <i class="icon-ok"></i>
-            <span class="text">1首歌曲已经添加到播放列表</span>
+            <span class="text">{{ messageText }}</span>
           </div>
-        </message> -->
+        </message>
       </div>
     </transition>
   </teleport>
@@ -51,6 +51,7 @@ import Suggest from '@/components/search/Suggest'
 import SearchList from '@/components/base/search-list/SearchList'
 import SongList from '@/components/base/song-list/SongList'
 import Switches from '@/components/base/switches/Switches'
+import Message from '@/components/base/message/Message'
 import useSearchHistory from '@/components/search/useSearchHistory'
 
 export default defineComponent({
@@ -61,7 +62,8 @@ export default defineComponent({
     Suggest,
     SearchList,
     SongList,
-    Switches
+    Switches,
+    Message
   },
   setup() {
     const store = useStore()
@@ -71,6 +73,15 @@ export default defineComponent({
     const scrollRef = ref(null)
     const playHistory = computed(() => store.state.playHistory)
     const searchHistory = computed(() => store.state.searchHistory)
+
+    const messageRef = ref(null)
+    const messageVisible = ref(false)
+    const addSongList = ref([])
+    const messageText = computed(() => addSongList.value.length + '首歌曲已经添加到播放列表')
+
+    function messageClosed() {
+      addSongList.value = []
+    }
 
     async function show() {
       visible.value = true
@@ -82,9 +93,14 @@ export default defineComponent({
       visible.value = false
     }
 
-    // 播放历史列表点击回调
+    // 最近播放列表点击回调
     function selectSongBySongList({ song }) {
       addSong(song)
+      if (!addSongList.value.find(v => v.id === song.id)) {
+        addSongList.value.push(song)
+      }
+      messageRef.value.show()
+      // messageVisible.value = true
     }
 
     function addSong(song) {
@@ -118,13 +134,17 @@ export default defineComponent({
       query,
       currentIndex,
       scrollRef,
+      messageRef,
+      messageVisible,
       playHistory,
       searchHistory,
       show,
       hide,
       selectSongBySongList,
       selectSongBySuggest,
-      addQuery
+      addQuery,
+      messageClosed,
+      messageText
     }
   }
 })

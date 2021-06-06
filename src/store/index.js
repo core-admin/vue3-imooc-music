@@ -12,6 +12,6 @@ export default createStore({
   actions,
   mutations,
   // 严格模式 严格要求修改state的数据符合vuex流程
-  strict: debug,
-  plugins: debug ? [createLogger()] : []
+  strict: debug
+  // plugins: debug ? [createLogger()] : []
 })
