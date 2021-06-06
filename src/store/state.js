@@ -1,5 +1,5 @@
 import { PLAY_MODE } from '@/assets/js/constant'
-import { FAVORITE_KEY, SEARCH_KEY, PLAY_KEY } from '@/assets/js/constant'
+import { FAVORITE_KEY } from '@/assets/js/constant'
 import { load } from '@/assets/js/arrayStore'
 
 const state = {
