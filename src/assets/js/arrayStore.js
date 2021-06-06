@@ -3,14 +3,19 @@ import storage from 'good-storage'
 const insertArray = (arr, val, compare, maxLen) => {
   if (compare && typeof compare === 'function') {
     const index = arr.findIndex(compare)
-    if (index > -1) return
+    if (index === 0) return
+
+    if (index > 0) {
+      arr.splice(index, 1)
+    }
+
     arr.unshift(val)
   } else {
     arr.unshift(val)
   }
 
   // 最多存储maxLen条
-  if (arr.length > maxLen) {
+  if (maxLen && arr.length > maxLen) {
     arr.pop()
   }
 }
