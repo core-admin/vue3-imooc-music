@@ -17,10 +17,14 @@ const state = {
   fullScreen: false,
   // 收藏歌曲列表
   favoriteList: load(FAVORITE_KEY),
+  // // 搜索历史数据
+  // searchHistory: load(SEARCH_KEY),
+  // // 播放历史数据
+  // playHistory: load(PLAY_KEY)
   // 搜索历史数据
-  searchHistory: load(SEARCH_KEY),
+  searchHistory: [],
   // 播放历史数据
-  playHistory: load(PLAY_KEY)
+  playHistory: []
 }
 
 export default state
